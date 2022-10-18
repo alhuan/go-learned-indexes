@@ -9,3 +9,8 @@ type SearchBound struct {
 	Start int64
 	Stop  int64
 }
+
+type KeyValue struct {
+	Key   int64
+	Value int64
+}
