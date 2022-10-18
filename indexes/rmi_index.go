@@ -5,13 +5,13 @@ type RMIIndex struct {
 	layer2Weights []float32
 }
 
-func NewRMIIndex() LearnedIndex {
+func NewRMIIndex() SecondaryIndex {
 	return &RMIIndex{
 		// TODO fill this in
 	}
 }
 
-func (i *RMIIndex) Evaluate(key int64) int64 {
+func (i *RMIIndex) Lookup(key int64) SearchBound {
 	//TODO implement me
 	panic("implement me")
 }
