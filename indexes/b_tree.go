@@ -11,7 +11,20 @@ type BTreeSecondaryIndex struct {
 }
 
 func (B *BTreeSecondaryIndex) Lookup(key int64) SearchBound {
-	//TODO implement me
+	// basic idea: since BTree is a secondary index we need to
+	// do a range lookup instead of a key Lookup
+	// this is the basic approach I think this function might need
+	// as you can see, it's pretty ugly
+	// someone else should validate this
+	var upperBound *int64
+	pivot := func(k int64, v int64) bool {
+		if k >= key {
+			*upperBound = v
+			return false
+		}
+		return true
+	}
+	B.baseTree.Ascend(key, pivot)
 	panic("implement me")
 }
 
