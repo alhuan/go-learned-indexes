@@ -2,6 +2,7 @@ package indexes
 
 import (
 	"github.com/tidwall/btree"
+	"unsafe"
 )
 
 // note that we should only insert every kth key into this btree because we're using it as a
@@ -29,11 +30,12 @@ func (B *BTreeSecondaryIndex) Lookup(key int64) SearchBound {
 }
 
 func (B *BTreeSecondaryIndex) Size() int64 {
-	//TODO implement me
-	panic("implement me")
+	return int64(unsafe.Sizeof(B))
 }
 
 func NewBtreeIndex(keyValues *[]KeyValue) SecondaryIndex {
+	btreeMap := btree.Map[int64, int64]{}
+	btreeMap.Load()
 	return &BTreeSecondaryIndex{
 		baseTree: &btree.Map[int64, int64]{},
 	}
