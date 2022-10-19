@@ -1,2 +1,2 @@
-github.com/google/btree v1.1.2 h1:xf4v41cLI2Z6FxbKm+8Bu+m8ifhj15JuZ9sa0jZCMUU=
-github.com/google/btree v1.1.2/go.mod h1:qOPhT0dTNdNzV6Z/lhRX0YXUafgPLFUh+gZMl761Gm4=
+github.com/tidwall/btree v1.4.4 h1:tOsRz2Upq6BEJz8T++C6THzNh9xGWymBOOSfA7ffNXY=
+github.com/tidwall/btree v1.4.4/go.mod h1:LGm8L/DZjPLmeWGjv5kFrY8dL4uVhMmzmmLYmsObdKE=
