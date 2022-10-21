@@ -9,6 +9,7 @@ import (
 // secondary index. I forgot how this is supposed to work though
 type BTreeSecondaryIndex struct {
 	baseTree *btree.Map[int64, int64]
+	gapSize int64
 }
 
 func (B *BTreeSecondaryIndex) Lookup(key int64) SearchBound {
@@ -26,7 +27,7 @@ func (B *BTreeSecondaryIndex) Lookup(key int64) SearchBound {
 		return true
 	}
 	B.baseTree.Ascend(key, pivot)
-	panic("implement me")
+	return SearchBound{Start: *upperBound - B.gapSize, Stop: *upperBound}
 }
 
 func (B *BTreeSecondaryIndex) Size() int64 {
