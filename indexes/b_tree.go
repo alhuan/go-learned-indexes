@@ -27,6 +27,7 @@ func (B *BTreeSecondaryIndex) Lookup(key int64) SearchBound {
 		return true
 	}
 	B.baseTree.Ascend(key, pivot)
+	// this needs to be clamped to [0, range_max]
 	return SearchBound{Start: *upperBound - B.gapSize, Stop: *upperBound}
 }
 
