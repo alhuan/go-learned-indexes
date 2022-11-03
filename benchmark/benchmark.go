@@ -4,7 +4,7 @@ import "go-learned-indexes/indexes"
 
 var (
 	outputCSVDir = "./results"
-	datasetDir = "./data"
+	datasetDir   = "./data"
 )
 
 func LoadDataset(filename string) *[]indexes.KeyValue {
@@ -18,5 +18,5 @@ func RunAllIndexes() {
 }
 
 func RunIndex(index indexes.SecondaryIndex, sizeScale int64) {
-	bound := index.Lookup()
+	
 }
