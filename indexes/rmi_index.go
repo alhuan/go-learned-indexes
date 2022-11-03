@@ -5,7 +5,7 @@ package indexes
 // there's a bit of work to be done in figuring out which error bounds to use so whoever's doing this
 // better read their papers good
 type RMIIndex struct {
-	layer1Weights []float32
+	layer1Weights []float32 
 	layer2Weights []float32
 	maxError      int64
 }
