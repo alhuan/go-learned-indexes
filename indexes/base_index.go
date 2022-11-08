@@ -3,6 +3,7 @@ package indexes
 type SecondaryIndex interface {
 	Lookup(key int64) SearchBound
 	Size() int64
+	Name() string
 }
 
 type SearchBound struct {

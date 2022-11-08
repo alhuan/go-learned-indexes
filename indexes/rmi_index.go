@@ -25,3 +25,7 @@ func (i *RMIIndex) Size() int64 {
 	//TODO implement me
 	panic("implement me")
 }
+
+func (i *RMIIndex) Name() string {
+	return "RMI"
+}
