@@ -35,6 +35,10 @@ func (B *BTreeSecondaryIndex) Size() int64 {
 	return int64(unsafe.Sizeof(B))
 }
 
+func (B *BTreeSecondaryIndex) Name() string {
+	return "BTree"
+}
+
 func NewBtreeIndex(keyValues *[]KeyValue) SecondaryIndex {
 	btreeMap := btree.Map[int64, int64]{}
 	btreeMap.Load()
