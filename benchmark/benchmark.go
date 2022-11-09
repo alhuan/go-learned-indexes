@@ -3,6 +3,7 @@ package benchmark
 import (
 	"fmt"
 	"go-learned-indexes/indexes"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -28,14 +29,18 @@ func RunAllIndexes() {
 		// force a garbage collection to clean up the previous datasets so that
 		// it doesn't continue to take up memory
 		runtime.GC()
-		loadedData := LoadDataset(path.Join(datasetDir, dataset))
+		loadedData, err := LoadDataset(path.Join(datasetDir, dataset))
+		if err != nil {
+			log.Fatal(err)
+		}
 		for _, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
 			runtime.GC()
 			index := creationFunc(loadedData)
 			file := os.NewFile(0755, fmt.Sprintf("%s_%s.csv", dataset, index.Name()))
-			
+			averageTime := 0.0
+			for _, key := 
 			file.Close()
 		}
 	}

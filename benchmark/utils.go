@@ -6,6 +6,7 @@ import (
 	"go-learned-indexes/indexes"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -54,21 +55,11 @@ func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 func BinarySearch(data *[]indexes.KeyValue, lookupKey int64, bound indexes.SearchBound) int64 {
 	// model the binary search off of the function body of sort.Search(), but we should probably use int64s instead of int32s
 	// don't actually use this function, I'm just leaving it here so you can click into it for reference
-	//sort.Search()
-
-	mid := int64((bound.Start + bound.Stop) / 2)
-	if mid == bound.Stop {
+	idx := sort.Search(len(*data), func(i int) bool {
+		return (*data)[i].Key >= lookupKey
+	})
+	if idx == len(*data) {
 		return -1
 	}
-	if (*data)[mid].Key == lookupKey {
-		return (*data)[mid].Value
-	} else { // recursive binary search
-		var newBound indexes.SearchBound
-		if (*data)[mid].Key > lookupKey {
-			newBound = indexes.SearchBound{Start: mid + 1, Stop: bound.Stop}
-		} else {
-			newBound = indexes.SearchBound{Start: bound.Start, Stop: mid}
-		}
-		return BinarySearch(data, lookupKey, newBound)
-	}
+	return (*data)[idx].Value
 }
