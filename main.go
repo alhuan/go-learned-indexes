@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"go-learned-indexes/benchmark"
 )
 
 func main() {
-	fmt.Printf("hello")
+	benchmark.RunAllIndexes()
 }

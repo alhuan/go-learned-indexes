@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-// TRINITY do these two functions
-
 func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 	// read a dataset from disk, read the values, and load it in
 	f, err := os.Open(filename)
@@ -55,11 +53,18 @@ func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 func BinarySearch(data *[]indexes.KeyValue, lookupKey int64, bound indexes.SearchBound) int64 {
 	// model the binary search off of the function body of sort.Search(), but we should probably use int64s instead of int32s
 	// don't actually use this function, I'm just leaving it here so you can click into it for reference
-	idx := sort.Search(len(*data), func(i int) bool {
-		return (*data)[i].Key >= lookupKey
-	})
-	if idx == len(*data) {
+	i, j := bound.Start, bound.Stop
+	for i < j {
+		h := (i + j) >> 1
+		// i ≤ h < j
+		if (*data)[h].Key < lookupKey {
+			i = h + 1 // preserves f(i-1) == false
+		} else {
+			j = h // preserves f(j) == true
+		}
+	}
+	if int(i) == len(*data) {
 		return -1
 	}
-	return (*data)[idx].Value
+	return (*data)[i].Value
 }

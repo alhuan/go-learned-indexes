@@ -5,7 +5,7 @@ type BinarySearch struct {
 }
 
 func (b *BinarySearch) Lookup(key int64) SearchBound {
-	return SearchBound{0, b.len - 1}
+	return SearchBound{0, b.len}
 }
 
 func (b *BinarySearch) Size() int64 {
