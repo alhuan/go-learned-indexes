@@ -7,7 +7,7 @@ package indexes
 type RMIIndex struct {
 	layer1Weights []float32
 	layer2Weights []float32
-	maxError      int64
+	maxError      uint64
 }
 
 func NewRMIIndex(keyValues *[]KeyValue) SecondaryIndex {
@@ -16,12 +16,12 @@ func NewRMIIndex(keyValues *[]KeyValue) SecondaryIndex {
 	}
 }
 
-func (i *RMIIndex) Lookup(key int64) SearchBound {
+func (i *RMIIndex) Lookup(key uint64) SearchBound {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (i *RMIIndex) Size() int64 {
+func (i *RMIIndex) Size() uint64 {
 	//TODO implement me
 	panic("implement me")
 }

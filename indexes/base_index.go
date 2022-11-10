@@ -1,17 +1,17 @@
 package indexes
 
 type SecondaryIndex interface {
-	Lookup(key int64) SearchBound
+	Lookup(key uint64) SearchBound
 	Size() int64
 	Name() string
 }
 
 type SearchBound struct {
-	Start int64
-	Stop  int64
+	Start uint64
+	Stop  uint64
 }
 
 type KeyValue struct {
-	Key   int64
-	Value int64
+	Key   uint64
+	Value uint64
 }

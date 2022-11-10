@@ -8,18 +8,18 @@ import (
 // note that we should only insert every kth key into this btree because we're using it as a
 // secondary index. I forgot how this is supposed to work though
 type BTreeSecondaryIndex struct {
-	baseTree *btree.Map[int64, int64]
-	gapSize int64
+	baseTree *btree.Map[uint64, uint64]
+	gapSize  uint64
 }
 
-func (B *BTreeSecondaryIndex) Lookup(key int64) SearchBound {
+func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 	// basic idea: since BTree is a secondary index we need to
 	// do a range lookup instead of a key Lookup
 	// this is the basic approach I think this function might need
 	// as you can see, it's pretty ugly
 	// someone else should validate this
-	var upperBound *int64
-	pivot := func(k int64, v int64) bool {
+	var upperBound *uint64
+	pivot := func(k uint64, v uint64) bool {
 		if k >= key {
 			*upperBound = v
 			return false
@@ -40,9 +40,9 @@ func (B *BTreeSecondaryIndex) Name() string {
 }
 
 func NewBtreeIndex(keyValues *[]KeyValue) SecondaryIndex {
-	btreeMap := btree.Map[int64, int64]{}
+	btreeMap := btree.Map[uint64, uint64]{}
 	btreeMap.Load()
 	return &BTreeSecondaryIndex{
-		baseTree: &btree.Map[int64, int64]{},
+		baseTree: &btree.Map[uint64, uint64]{},
 	}
 }

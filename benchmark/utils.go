@@ -6,7 +6,6 @@ import (
 	"go-learned-indexes/indexes"
 	"log"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -50,7 +49,7 @@ func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 * bound representing SearchBound [start, stop)
 * returns corresponding KeyValue.Value for lookupKey, -1 if not found or out of bounds
  */
-func BinarySearch(data *[]indexes.KeyValue, lookupKey int64, bound indexes.SearchBound) int64 {
+func BinarySearch(data *[]indexes.KeyValue, lookupKey uint64, bound indexes.SearchBound) uint64 {
 	// model the binary search off of the function body of sort.Search(), but we should probably use int64s instead of int32s
 	// don't actually use this function, I'm just leaving it here so you can click into it for reference
 	i, j := bound.Start, bound.Stop
