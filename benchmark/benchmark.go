@@ -33,7 +33,7 @@ func RunAllIndexes() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		file := os.NewFile(0755, fmt.Sprintf("%s_results.csv", dataset))
+		file, _ := os.OpenFile(fmt.Sprintf("%s_results.csv", dataset), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		for _, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
