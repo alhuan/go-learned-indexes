@@ -1,46 +1,39 @@
 package benchmark
 
 import (
-	"bufio"
-	"errors"
+	"encoding/binary"
+	"fmt"
 	"go-learned-indexes/indexes"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 	// read a dataset from disk, read the values, and load it in
-	f, err := os.Open(filename)
+	file, err := os.Open(filename)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer f.Close()
+	defer file.Close()
 
-	scanner := bufio.NewScanner(f)
-	data := []indexes.KeyValue{}
-	for scanner.Scan() {
-		text := scanner.Text()
-		tokens := strings.Fields(text)
-		if len(tokens) != 2 { // Assuming key value on each line
-			return nil, errors.New("Line had more than 2 tokens")
-		}
-		intKey, _ := strconv.ParseInt(tokens[0], 0, 64)
-		intValue, _ := strconv.ParseInt(tokens[1], 0, 64)
-		item := indexes.KeyValue{Key: intKey, Value: intValue}
-		data = append(data, item)
-
+	var size uint64
+	if err = binary.Read(file, binary.LittleEndian, &size); err != nil {
+		log.Fatal(err)
 	}
-
-	if err := scanner.Err(); err != nil {
+	fmt.Printf("Reading dataset of size %d", size)
+	// we need to make a slice of the correct size, then
+	data := make([]uint64, size)
+	if err = binary.Read(file, binary.LittleEndian, &data); err != nil {
 		log.Fatal(err)
 	}
 
-	ptr := &data
-	return ptr, nil
+	keyValues := make([]indexes.KeyValue, size)
+	for pos, key := range data {
+		keyValues[pos] = indexes.KeyValue{Key: key, Value: uint64(pos)}
+	}
+	return &keyValues, nil
 }
 
 /**
