@@ -42,7 +42,10 @@ func RunAllIndexes() {
 			index := creationFunc(loadedData)
 			buildTime := time.Since(buildStart).Nanoseconds()
 			var totalTime int64 = 0
-			for _, lookupData := range *loadedData {
+			for i, lookupData := range *loadedData {
+				if i%20 != 0 {
+					continue
+				}
 				// I think a GC pause here would actually cause this to run for hours so I'm not going to include it,
 				// GC pauses  while the index runs are also a legitimate part of performance benchmarking anyway
 				startTime := time.Now()
