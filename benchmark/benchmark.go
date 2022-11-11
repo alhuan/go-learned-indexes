@@ -55,10 +55,10 @@ func RunAllIndexes() {
 				totalTime += elapsed
 			}
 			line := fmt.Sprintf("%s,%d,%f", index.Name(), buildTime, float64(totalTime)/float64(len(*loadedData)))
+			log.Print(line)
 			if _, err := file.WriteString(line); err != nil {
 				log.Fatal(err)
 			}
-			log.Print(line)
 		}
 		if err := file.Close(); err != nil {
 			log.Fatal(err)
