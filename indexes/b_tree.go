@@ -40,8 +40,6 @@ func (B *BTreeSecondaryIndex) Name() string {
 }
 
 func NewBtreeIndex(keyValues *[]KeyValue) SecondaryIndex {
-	btreeMap := btree.Map[uint64, uint64]{}
-	btreeMap.Load()
 	return &BTreeSecondaryIndex{
 		baseTree: &btree.Map[uint64, uint64]{},
 	}

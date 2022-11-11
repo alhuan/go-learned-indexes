@@ -1,10 +1,10 @@
 package indexes
 
 type BinarySearch struct {
-	len int64
+	len uint64
 }
 
-func (b *BinarySearch) Lookup(key int64) SearchBound {
+func (b *BinarySearch) Lookup(key uint64) SearchBound {
 	return SearchBound{0, b.len}
 }
 
@@ -17,5 +17,5 @@ func (b *BinarySearch) Name() string {
 }
 
 func NewBinarySearch(data *[]KeyValue) SecondaryIndex {
-	return &BinarySearch{}
+	return &BinarySearch{len: uint64(len(*data))}
 }

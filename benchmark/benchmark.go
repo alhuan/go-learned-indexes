@@ -18,8 +18,7 @@ var (
 	}
 	// we use creation funcs instead of storing the indices so that we can create them one at a time
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
-		indexes.NewBtreeIndex,
-		indexes.NewRMIIndex,
+		indexes.NewBinarySearch,
 	}
 )
 
@@ -48,8 +47,8 @@ func RunAllIndexes() {
 				// GC pauses  while the index runs are also a legitimate part of performance benchmarking anyway
 				startTime := time.Now()
 				bounds := index.Lookup(lookupData.Key)
-				pos := BinarySearch(loadedData, lookupData.Key, bounds)
-				if pos == -1 {
+				found := BinarySearch(loadedData, lookupData.Key, bounds)
+				if !found {
 					log.Fatal(fmt.Sprintf("Bad lookup on index %s", index.Name()))
 				}
 				elapsed := time.Since(startTime).Nanoseconds()

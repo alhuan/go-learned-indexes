@@ -21,7 +21,7 @@ func (i *RMIIndex) Lookup(key uint64) SearchBound {
 	panic("implement me")
 }
 
-func (i *RMIIndex) Size() uint64 {
+func (i *RMIIndex) Size() int64 {
 	//TODO implement me
 	panic("implement me")
 }
