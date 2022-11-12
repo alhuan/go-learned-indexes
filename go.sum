@@ -1,2 +1,4 @@
 github.com/tidwall/btree v1.4.4 h1:tOsRz2Upq6BEJz8T++C6THzNh9xGWymBOOSfA7ffNXY=
 github.com/tidwall/btree v1.4.4/go.mod h1:LGm8L/DZjPLmeWGjv5kFrY8dL4uVhMmzmmLYmsObdKE=
+github.com/tidwall/btree v1.5.2 h1:5eA83Gfki799V3d3bJo9sWk+yL2LRoTEah3O/SA6/8w=
+github.com/tidwall/btree v1.5.2/go.mod h1:twD9XRA5jj9VUQGELzDO4HPQTNJsoWWfYEL+EUQ2cKY=
