@@ -18,7 +18,10 @@ var (
 	}
 	// we use creation funcs instead of storing the indices so that we can create them one at a time
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
-		indexes.NewBinarySearch,
+		// indexes.NewBinarySearch,
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewBtreeIndex(idxs, 4)
+		},
 	}
 )
 
