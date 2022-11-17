@@ -57,7 +57,7 @@ func RunAllIndexes() {
 				bounds := index.Lookup(lookupData.Key)
 				found := BinarySearch(loadedData, lookupData.Key, bounds)
 				if !found {
-					log.Fatal(fmt.Sprintf("Bad lookup on index %s on key %s and searchbound %+v", index.Name(), lookupData.Key, bounds))
+					log.Fatal(fmt.Sprintf("Bad lookup on index %s on key %d, value %d and searchbound %+v", index.Name(), lookupData.Key, lookupData.Value, bounds))
 				}
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
