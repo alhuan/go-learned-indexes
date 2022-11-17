@@ -23,6 +23,7 @@ var (
 			return indexes.NewBtreeIndex(idxs, 4)
 		},
 	}
+	lookupsToGenerate = 10_000_000
 )
 
 func RunAllIndexes() {
@@ -36,6 +37,7 @@ func RunAllIndexes() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		lookups := GenerateEqualityLookups(loadedData, lookupsToGenerate)
 		file, _ := os.OpenFile(fmt.Sprintf("%s_results.csv", dataset), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		for _, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
@@ -45,10 +47,7 @@ func RunAllIndexes() {
 			index := creationFunc(loadedData)
 			buildTime := time.Since(buildStart).Nanoseconds()
 			var totalTime int64 = 0
-			for i, lookupData := range *loadedData {
-				if i%20 != 0 {
-					continue
-				}
+			for _, lookupData := range lookups {
 				// I think a GC pause here would actually cause this to run for hours so I'm not going to include it,
 				// GC pauses  while the index runs are also a legitimate part of performance benchmarking anyway
 				startTime := time.Now()

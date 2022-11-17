@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-learned-indexes/indexes"
 	"log"
+	"math/rand"
 	"os"
 )
 
@@ -34,6 +35,14 @@ func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 		keyValues[pos] = indexes.KeyValue{Key: key, Value: uint64(pos)}
 	}
 	return &keyValues, nil
+}
+
+func GenerateEqualityLookups(keyValues *[]indexes.KeyValue, numLookups int) (lookups []indexes.KeyValue) {
+	for i := 0; i < numLookups; i++ {
+		offset := rand.Intn(len(*keyValues))
+		lookups = append(lookups, (*keyValues)[offset])
+	}
+	return lookups
 }
 
 /**
