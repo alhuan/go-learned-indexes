@@ -48,6 +48,9 @@ func NewBtreeIndex(keyValues *[]KeyValue, gap uint64) SecondaryIndex {
 		var curKeyVal = (*keyValues)[i]
 		tree.Load(curKeyVal.Key, curKeyVal.Value)
 	}
+	// we need to add the last value so that the b-tree has a complete picture
+	lastValue := (*keyValues)[len(*keyValues)]
+	tree.Load(lastValue.Key, lastValue.Value)
 	return &BTreeSecondaryIndex{
 		baseTree: tree,
 		gapSize:  gap,
