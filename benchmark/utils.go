@@ -23,7 +23,7 @@ func LoadDataset(filename string) (*[]indexes.KeyValue, error) {
 	if err = binary.Read(file, binary.LittleEndian, &size); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Reading dataset of size %d", size)
+	fmt.Printf("Reading dataset %s of size %d\n", filename, size)
 	// we need to make a slice of the correct size, then
 	data := make([]uint64, size)
 	if err = binary.Read(file, binary.LittleEndian, &data); err != nil {

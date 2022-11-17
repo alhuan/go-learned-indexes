@@ -22,9 +22,9 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewRadixBinarySearch(idxs, 16)
 		},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewBtreeIndex(idxs, 4)
-		//},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewBtreeIndex(idxs, 4)
+		},
 	}
 	lookupsToGenerate = 10_000_000
 )
@@ -57,7 +57,7 @@ func RunAllIndexes() {
 				bounds := index.Lookup(lookupData.Key)
 				found := BinarySearch(loadedData, lookupData.Key, bounds)
 				if !found {
-					log.Fatal(fmt.Sprintf("Bad lookup on index %s", index.Name()))
+					log.Fatal(fmt.Sprintf("Bad lookup on index %s on key %s and searchbound %+v", index.Name(), lookupData.Key, bounds))
 				}
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
