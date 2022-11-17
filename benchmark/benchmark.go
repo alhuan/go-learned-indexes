@@ -20,8 +20,11 @@ var (
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
 		indexes.NewBinarySearch,
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewBtreeIndex(idxs, 4)
+			return indexes.NewRadixBinarySearch(idxs, 16)
 		},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewBtreeIndex(idxs, 4)
+		//},
 	}
 	lookupsToGenerate = 10_000_000
 )
