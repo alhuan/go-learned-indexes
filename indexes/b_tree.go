@@ -23,6 +23,10 @@ func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 		if k > key {
 			*upperBound = v
 			return false
+			// hit the key, just give it a valid search bound and let it go
+		} else if k == key {
+			*upperBound = v + 1
+			return false
 		}
 		return true
 	}
