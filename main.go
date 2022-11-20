@@ -1,8 +1,6 @@
 package main
 
-import (
-	"go-learned-indexes/benchmark"
-)
+import "go-learned-indexes/benchmark"
 
 func main() {
 	benchmark.RunAllIndexes()

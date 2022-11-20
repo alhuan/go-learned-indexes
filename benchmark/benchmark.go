@@ -41,7 +41,10 @@ func RunAllIndexes() {
 			log.Fatal(err)
 		}
 		lookups := GenerateEqualityLookups(loadedData, lookupsToGenerate)
-		file, _ := os.OpenFile(fmt.Sprintf("%s_results.csv", dataset), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		file, err := os.OpenFile(fmt.Sprintf("%s_results.csv", dataset), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
 		for _, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
@@ -62,7 +65,7 @@ func RunAllIndexes() {
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
 			}
-			line := fmt.Sprintf("%s,%d,%f", index.Name(), buildTime, float64(totalTime)/float64(len(lookups)))
+			line := fmt.Sprintf("%s,%d,%d,%f", index.Name(), buildTime, index.Size(), float64(totalTime)/float64(len(lookups)))
 			log.Print(line)
 			if _, err := file.WriteString(line); err != nil {
 				log.Fatal(err)
