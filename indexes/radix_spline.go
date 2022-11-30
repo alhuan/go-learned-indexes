@@ -10,7 +10,7 @@ type Coord struct {
 	y float64
 }
 
-type RadixSearch struct {
+type RadixSpline struct {
 	minKey       uint64
 	maxKey       uint64
 	numKeys      uint64
@@ -24,7 +24,7 @@ type RadixSearch struct {
 	prevPrefix uint64
 }
 
-func (r *RadixSearch) Lookup(key uint64) SearchBound {
+func (r *RadixSpline) Lookup(key uint64) SearchBound {
 	estimate := r.getEstimatedPosition(key)
 	var begin uint64
 	var end uint64
@@ -41,7 +41,7 @@ func (r *RadixSearch) Lookup(key uint64) SearchBound {
 	return SearchBound{begin, end}
 }
 
-func (r *RadixSearch) getEstimatedPosition(key uint64) uint64 {
+func (r *RadixSpline) getEstimatedPosition(key uint64) uint64 {
 	if key <= r.minKey {
 		return 0
 	}
@@ -61,7 +61,7 @@ func (r *RadixSearch) getEstimatedPosition(key uint64) uint64 {
 	return uint64(math.FMA(keyDiff, slope, down.y)) // x * y + z, computed with only one rounding.
 }
 
-func (r *RadixSearch) getSplineSegment(key uint64) uint64 {
+func (r *RadixSpline) getSplineSegment(key uint64) uint64 {
 	prefix := (key - r.minKey) >> r.numShiftBits
 	begin := r.radixTable[prefix]
 	end := r.radixTable[prefix+1]
@@ -91,17 +91,17 @@ func (r *RadixSearch) getSplineSegment(key uint64) uint64 {
 	return begin
 }
 
-func (r *RadixSearch) Size() int64 {
+func (r *RadixSpline) Size() int64 {
 	return int64(unsafe.Sizeof(*r)) + int64(len(r.radixTable)*8+len(r.splinePoints)*16)
 }
 
-func (r *RadixSearch) Name() string {
+func (r *RadixSpline) Name() string {
 	return "RadixSearch"
 }
 
-func NewRadixSearch(data *[]KeyValue, numRadixBits uint64, maxError uint64) SecondaryIndex {
+func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) SecondaryIndex {
 	n := len(*data)
-	rs := &RadixSearch{}
+	rs := &RadixSpline{}
 	var curNumKeys uint64
 	var curNumDistinctKeys uint64
 	var prevKey uint64
@@ -217,7 +217,7 @@ func NewRadixSearch(data *[]KeyValue, numRadixBits uint64, maxError uint64) Seco
 	return rs
 }
 
-func (r *RadixSearch) addKeyToSpline(curKey uint64, i float64) {
+func (r *RadixSpline) addKeyToSpline(curKey uint64, i float64) {
 	r.splinePoints = append(r.splinePoints, Coord{curKey, i}) //is this super inefficient??
 	// PossiblyAddKeyToRadixTable(key) {
 	curPrefix := (curKey - r.minKey) >> r.numShiftBits
