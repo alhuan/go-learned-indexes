@@ -2,6 +2,7 @@ package indexes
 
 import (
 	"math"
+	"math/bits"
 	"unsafe"
 )
 
@@ -112,7 +113,10 @@ func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) Seco
 
 	rs.minKey = (*data)[0].Key
 	rs.maxKey = (*data)[n-1].Key
-	maxPrefix := (rs.maxKey - rs.minKey) >> numRadixBits
+	rs.numRadixBits = numRadixBits
+	rs.maxError = maxError
+	rs.numShiftBits = getNumShiftBits(rs.maxKey-rs.minKey, numRadixBits)
+	maxPrefix := (rs.maxKey - rs.minKey) >> rs.numShiftBits
 	rs.radixTable = make([]uint64, maxPrefix+2) //how to fill this with all 0's?
 	for i := 0; uint64(i) < maxPrefix+2; i++ {  // ^ sus
 		rs.radixTable[i] = 0
@@ -249,4 +253,12 @@ func computeOrientation(dx1 float64, dy1 float64, dx2 float64, dy2 float64) Orie
 	} else {
 		return Collinear
 	}
+}
+
+func getNumShiftBits(diff uint64, numRadixBits uint64) uint64 {
+	clz := bits.LeadingZeros64(diff)
+	if 64-clz < int(numRadixBits) {
+		return 0
+	}
+	return 64 - uint64(numRadixBits) - uint64(clz)
 }
