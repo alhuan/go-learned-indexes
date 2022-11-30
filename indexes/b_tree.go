@@ -39,7 +39,7 @@ func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 }
 
 func (B *BTreeSecondaryIndex) Size() int64 {
-	return int64(unsafe.Sizeof(B))
+	return int64(unsafe.Sizeof(*B))
 }
 
 func (B *BTreeSecondaryIndex) Name() string {
