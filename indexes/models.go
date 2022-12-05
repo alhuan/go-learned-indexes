@@ -63,3 +63,50 @@ func (lr LinearRegression) Size() int64 {
 func (lr LinearRegression) Predict(key uint64) float64 {
 	return lr.slope * float64(key) + lr.intercept;
 }
+
+// Linear Spline
+
+type LinearSpline struct {
+	slope		float64
+	intercept	float64
+}
+
+func NewLinearSpline(keyValues []KeyValue, offset int64, compression_factor float64) LinearSpline {
+	n := len(keyValues)
+	ls := LinearSpline{}
+
+	if (n == 0){
+		ls.slope = 0
+		ls.intercept = 0
+		return ls
+	}
+	if (n == 1){
+		ls.slope = 0
+		ls.intercept = compression_factor * float64(offset)
+		return ls
+	}
+
+	var numerator float64
+	var denominator float64
+
+	numerator = float64(n)
+	denominator = float64(keyValues[n - 1].Key - keyValues[0].Key)
+
+	if denominator == 0 {
+		ls.slope = 0
+	} else {
+		ls.slope = numerator / denominator * compression_factor
+	}
+
+	ls.intercept = float64(offset) * compression_factor - ls.slope * float64(keyValues[0].Key)
+
+	return ls
+}
+
+func (ls LinearSpline) Size() int64 {
+	return int64(unsafe.Sizeof(ls))
+}
+
+func (ls LinearSpline) Predict(key uint64) float64 {
+	return ls.slope * float64(key) + ls.intercept;
+}
