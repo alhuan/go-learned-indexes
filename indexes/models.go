@@ -1,6 +1,12 @@
 package indexes
 
 import "unsafe"
+import "math"
+
+type Model interface {
+	Predict(key uint64) float64
+	Size() int64
+}
 
 // Linear Regression
 
@@ -109,4 +115,119 @@ func (ls LinearSpline) Size() int64 {
 
 func (ls LinearSpline) Predict(key uint64) float64 {
 	return ls.slope * float64(key) + ls.intercept;
+}
+
+// CubicSpline
+
+type CubicSpline struct {
+	a	float64 // cubic coeff
+	b 	float64 // quadratic coeff 
+	c 	float64 // linear coeff
+	d 	float64 // intercept
+}
+
+func NewCubicSpline(keyValues []KeyValue, offset int64, compression_factor float64) CubicSpline {
+	n := len(keyValues)
+	cs := CubicSpline{}
+
+	if (n == 0){
+		cs.a = 0
+		cs.b = 0
+		cs.c = 1
+		cs.d = 0
+		return cs
+	}
+	if (n == 1){
+		cs.a = 0
+		cs.b = 0
+		cs.c = 0
+		cs.d = compression_factor * float64(offset)
+		return cs
+	}
+
+	var xmin, ymin, xmax, ymax float64
+	var x1, y1, x2, y2 float64
+	var sxn, syn float64 
+
+	xmin = float64(keyValues[0].Key)
+	ymin = compression_factor * float64(offset)
+	xmax = float64(keyValues[n - 1].Key)
+	ymax = compression_factor * float64(offset + int64(n) - 1)
+
+	x1 = 0
+	y1 = 0
+	x2 = 1
+	y2 = 1
+
+	sxn = 0
+	syn = 0
+
+	for i, kv := range keyValues {
+		var x, y float64
+		x = float64(kv.Key)
+		y = (float64(offset) + float64(i)) * compression_factor
+
+		sxn = (x - xmin) / (xmax - xmin)
+		if sxn > 0 {
+			syn = (y - ymin) / (ymax - ymin)
+			break
+		}
+	}
+
+	var m1, m2 float64
+	var sxp, syp float64
+
+	m1 = (syn - y1) / (sxn - x1)
+	sxp = 0
+	syp = 0
+
+	for i, kv := range keyValues {
+		var x, y float64
+		x = float64(kv.Key)
+		y = (float64(offset) + float64(i)) * compression_factor
+
+		sxp = (x - xmin) / (xmax - xmin)
+		if sxp > 0 {
+			syp = (y - ymin) / (ymax - ymin)
+			break
+		}
+	}
+
+	m2 = (y2 - syp) / (x2 - sxp)
+
+	if sq := m1 * m1 + m2 * m2; sq > 9 {
+		var tau float64
+		tau = 3 / math.Sqrt(sq)
+		m1 *= tau
+		m2 *= tau
+	}
+
+	var cube float64
+	cube = math.Pow(xmax - xmin, 3)
+
+	cs.a = (m1 + m2 - 2) / cube
+	cs.b = -(xmax * (2 * m1 * m2 - 3) + xmin * (m1 + 2 * m2 - 3)) / cube
+	cs.c = (m1 * xmax * xmax + m2 * xmin * xmin + xmax * xmin + (2 * m1 + 2 * m2 - 6)) / cube
+	cs.d = -xmin * (m1 * xmax * xmax + xmax * xmin * (m2 - 3) + xmin * xmin) / cube
+
+	cs.a *= ymax - ymin
+	cs.b *= ymax - ymin
+	cs.c *= ymax - ymin
+	cs.d *= ymax - ymin
+	cs.d += ymin
+
+	return cs
+}
+
+func (cs CubicSpline) Size() int64 {
+	return int64(unsafe.Sizeof(cs))
+}
+
+func (cs CubicSpline) Predict(key uint64) float64 {
+	var tmp, v1, v2, v3 float64
+	tmp = float64(key)
+	v1 = cs.a * tmp + cs.b
+	v2 = v1 * tmp + cs.c
+	v3 = v2 * tmp + cs.d
+	return v3
 }
