@@ -76,15 +76,15 @@ func (cht *CompactHistTree) Name() string {
 	return "CompactHistTree"
 }
 
-func NewCHT(data *[]KeyValue, minKey uint64, maxKey uint64, numBins uint64, maxError uint64) SecondaryIndex {
+func NewCHT(data *[]KeyValue, numBins uint64, maxError uint64) SecondaryIndex {
 	cht := &CompactHistTree{}
 	n := len(*data)
 	cht.numKeys = uint64(n)
-	cht.minKey = minKey
-	cht.maxKey = maxKey
+	cht.minKey = (*data)[0].Key
+	cht.maxKey = (*data)[len(*data)-1].Key
 	cht.numBins = numBins
 	cht.maxError = maxError
-	cht.prevKey = minKey
+	cht.prevKey = cht.minKey
 
 	// Add each key
 	for i := 0; i < n; i++ {

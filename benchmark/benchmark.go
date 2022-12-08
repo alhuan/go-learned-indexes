@@ -25,8 +25,11 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewBtreeIndex(idxs, 4)
 		},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 20, 200)
+		//},
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 20, 200)
+			return indexes.NewCHT(idxs, 64, 1024)
 		},
 	}
 	lookupsToGenerate = 10_000_000
