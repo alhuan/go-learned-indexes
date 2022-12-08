@@ -116,7 +116,7 @@ func (cht *CompactHistTree) lookup(key uint64) uint64 {
 		width -= cht.logNumBins
 	}
 	// shouldn't get here
-	return -1
+	return 0
 }
 
 func (cht *CompactHistTree) addKey(key uint64) {
