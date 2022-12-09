@@ -97,20 +97,14 @@ func (r *RadixSpline) Size() int64 {
 }
 
 func (r *RadixSpline) Name() string {
-	return "RadixSearch"
+	return "RadixSpline"
 }
 
 func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) SecondaryIndex {
 	n := len(*data)
 	rs := &RadixSpline{}
-	var curNumKeys uint64
-	var curNumDistinctKeys uint64
-	var prevKey uint64
-	var prevPosition uint64
-	var upperLimit Coord
-	var lowerLimit Coord
-	var prevPoint Coord
 
+	rs.prevPrefix = 0
 	rs.minKey = (*data)[0].Key
 	rs.maxKey = (*data)[n-1].Key
 	rs.numRadixBits = numRadixBits
@@ -121,6 +115,14 @@ func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) Seco
 	for i := 0; uint64(i) < maxPrefix+2; i++ {  // ^ sus
 		rs.radixTable[i] = 0
 	}
+
+	var curNumKeys uint64 = 0
+	var curNumDistinctKeys uint64 = 0
+	var prevKey uint64 = rs.minKey
+	var prevPosition uint64 = 0
+	var upperLimit Coord
+	var lowerLimit Coord
+	var prevPoint Coord
 
 	for i := 0; i < n; i++ {
 		curKey := (*data)[i].Key
@@ -217,6 +219,8 @@ func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) Seco
 	//     max_error_, std::move(radix_table_), std::move(spline_points_));
 
 	// end of Finalize }
+
+	rs.numKeys = curNumKeys
 
 	return rs
 }
