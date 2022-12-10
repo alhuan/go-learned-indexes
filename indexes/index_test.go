@@ -3,6 +3,7 @@ package indexes
 import (
 	"math/rand"
 	"sort"
+	"strconv"
 	"testing"
 )
 
@@ -43,7 +44,8 @@ func TestIndex(t *testing.T) {
 			}
 		}
 		if !found {
-			t.Fatal("Not found")
+			toPrint := "Not found" + strconv.Itoa(int(keyValue.Key))
+			t.Fatal(toPrint)
 		}
 	}
 }

@@ -137,10 +137,16 @@ func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) Seco
 
 			//RememberPreviousCDFPoint
 			prevPoint = Coord{curKey, pos}
+			curNumKeys++
+			prevKey = curKey
+			prevPosition = uint64(i)
 			continue
 		}
 
 		if curKey == prevKey {
+			curNumKeys++
+			prevKey = curKey
+			prevPosition = uint64(i)
 			continue
 		}
 		curNumDistinctKeys++
@@ -153,6 +159,9 @@ func NewRadixSpline(data *[]KeyValue, numRadixBits uint64, maxError uint64) Seco
 				lowerLimit = Coord{curKey, pos - maxErrorF}
 			}
 			prevPoint = Coord{curKey, pos}
+			curNumKeys++
+			prevKey = curKey
+			prevPosition = uint64(i)
 			continue
 		}
 
