@@ -1,6 +1,7 @@
 package indexes
 
 import (
+	"fmt"
 	"math"
 	"math/bits"
 	"unsafe"
@@ -61,6 +62,9 @@ func (cht *CompactHistTree) Lookup(key uint64) SearchBound {
 		return SearchBound{Start: begin, Stop: end}
 	} else {
 		var prefix = (key - cht.minKey) >> cht.shift
+		if prefix+1 >= uint64(len(cht.table)) {
+			panic(fmt.Errorf("Something is wrong"))
+		}
 		begin := cht.table[prefix]
 		end := cht.table[prefix+1]
 		return SearchBound{Start: begin, Stop: end}
@@ -97,7 +101,7 @@ func NewCHT(data *[]KeyValue, numBins uint64, maxError uint64) SecondaryIndex {
 
 // Private stuff
 const (
-	Leaf            = uint64(1) << 31
+	Leaf            = 1 << 31
 	Mask            = Leaf - 1
 	Infinity uint64 = math.MaxInt64
 )
@@ -109,8 +113,9 @@ func (cht *CompactHistTree) lookup(key uint64) uint64 {
 	for true {
 		var bin = key >> width
 		next := cht.table[uint64(next<<cht.logNumBins)+bin]
-		if next&Leaf == 1 {
-			return next & Mask
+		if next&Leaf != 0 {
+			x := next & Mask
+			return x
 		}
 		key -= bin << width
 		width -= cht.logNumBins
@@ -120,14 +125,23 @@ func (cht *CompactHistTree) lookup(key uint64) uint64 {
 }
 
 func (cht *CompactHistTree) addKey(key uint64) {
+	if !(key >= cht.minKey && key <= cht.maxKey) {
+		panic(fmt.Errorf("Something is wrong"))
+	}
+	if key < cht.prevKey {
+		panic(fmt.Errorf("Something is wrong"))
+	}
 	cht.keys = append(cht.keys, key)
 	cht.prevKey = key
 }
 
 func (cht *CompactHistTree) finalize(numBins uint64) {
-	logNumBins := computeLog(uint64(numBins), false)
+	if !(cht.numKeys == 0 || cht.prevKey == cht.maxKey) {
+		panic(fmt.Errorf("Somethign is wrong"))
+	}
+	cht.logNumBins = computeLog(numBins, false)
 	lg := computeLog(cht.maxKey-cht.minKey, true)
-	cht.shift = lg - logNumBins
+	cht.shift = lg - cht.logNumBins
 	cht.buildOffline()
 	cht.singleLayer = cht.flatten()
 }
@@ -150,7 +164,9 @@ func (cht *CompactHistTree) buildOffline() {
 		var width = cht.shift - cht.tree[nodeIndex].first.first*cht.logNumBins
 		for index := curr.first; index != curr.second; index++ {
 			bin := (cht.keys[index] - cht.minKey - cht.tree[nodeIndex].first.second) >> width
-			if currBin != nil || bin != currBin.value {
+
+			// Is the first bin or a new one?
+			if currBin == nil || bin != currBin.value {
 				var iterValue uint64
 				if currBin != nil {
 					iterValue = currBin.value + 1
@@ -161,13 +177,17 @@ func (cht *CompactHistTree) buildOffline() {
 					cht.tree[nodeIndex].second[iter] = Range{index, index}
 				}
 				cht.tree[nodeIndex].second[bin] = Range{index, index}
-				nonNillOptional := Optional{value: bin}
-				currBin = &nonNillOptional
+				nonNilOptional := Optional{value: bin}
+				currBin = &nonNilOptional
 			}
 			cht.tree[nodeIndex].second[bin].second++
 		}
+		if cht.tree[nodeIndex].second[currBin.value].second != curr.second {
+			panic(fmt.Errorf("Something is wrong!"))
+		}
 	}
 
+	// Init the first node
 	ranges := make([]Range, cht.numBins)
 	for i := range ranges {
 		ranges[i] = Range{cht.numKeys, cht.numKeys}
@@ -184,19 +204,21 @@ func (cht *CompactHistTree) buildOffline() {
 		var level = cht.tree[node].first.first
 		var lower = cht.tree[node].first.second
 		for bin := 0; uint64(bin) != cht.numBins; bin++ {
-			if cht.tree[node].second[bin].second-cht.tree[node].second[bin].first > cht.maxError {
+			// should we split further?
+			if cht.tree[node].second[bin].second-cht.tree[node].second[bin].first > cht.maxError { // width of bin too wide
 				size := cht.tree[node].second[bin].second - cht.tree[node].second[bin].first
 				if size > (uint64(1) << (cht.shift - level*cht.logNumBins)) {
 					cht.tree[node].second[bin].first |= Leaf
 					continue
 				}
-
+				// create numBins new nodes
 				newNode := make([]Range, cht.numBins)
 				for i := range newNode {
 					newNode[i] = Range{cht.tree[node].second[bin].second, cht.tree[node].second[bin].second}
 				}
 				newLower := lower + uint64(bin)*(uint64(1)<<(cht.shift-level*cht.logNumBins))
 				cht.tree = append(cht.tree, Tree{Info{level + 1, newLower}, newNode})
+				// init the new node
 				initNode(uint64(len(cht.tree)-1), cht.tree[node].second[bin])
 				cht.tree[node].second[bin] = Range{0, uint64(len(cht.tree) - 1)}
 				nodes = append(nodes, uint64(len(cht.tree)-1))
@@ -210,16 +232,20 @@ func (cht *CompactHistTree) buildOffline() {
 }
 
 func (cht *CompactHistTree) flatten() bool {
+
 	if len(cht.tree) == 1 {
 		cht.transformIntoRadixTable()
 		return true
 	}
 
+	for i := 0; i < len(cht.tree)*int(cht.numBins); i++ {
+		cht.table = append(cht.table, 0)
+	}
 	limit := len(cht.tree)
 	for index := 0; index != limit; index++ {
 		for bin := uint64(0); bin != cht.numBins; bin++ {
 			// Leaf node?
-			if cht.tree[index].second[bin].first&Leaf == 1 {
+			if cht.tree[index].second[bin].first&Leaf != 0 {
 				cht.table[uint64(index<<cht.logNumBins)+bin] = cht.tree[index].second[bin].first
 			} else {
 				cht.table[uint64(index<<cht.logNumBins)+bin] = cht.tree[index].second[bin].second
