@@ -109,10 +109,11 @@ const (
 func (cht *CompactHistTree) lookup(key uint64) uint64 {
 	key -= cht.minKey
 	width := cht.shift
-	next := 0
+	var next uint64 = 0
+	// find a terminal bucket that this key is in
 	for true {
 		var bin = key >> width
-		next := cht.table[uint64(next<<cht.logNumBins)+bin]
+		next = cht.table[(next<<cht.logNumBins)+bin]
 		if next&Leaf != 0 {
 			x := next & Mask
 			return x
@@ -238,6 +239,7 @@ func (cht *CompactHistTree) flatten() bool {
 		return true
 	}
 
+	// put it all into table form for easy lookup later
 	for i := 0; i < len(cht.tree)*int(cht.numBins); i++ {
 		cht.table = append(cht.table, 0)
 	}

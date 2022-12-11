@@ -71,7 +71,7 @@ func RunAllIndexes() {
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
 			}
-			line := fmt.Sprintf("%s,%d,%d,%f", index.Name(), buildTime, index.Size(), float64(totalTime)/float64(len(lookups)))
+			line := fmt.Sprintf("%s, %d, %d, %f", index.Name(), buildTime, index.Size(), float64(totalTime)/float64(len(lookups)))
 			log.Print(line)
 			if _, err := file.WriteString(line); err != nil {
 				log.Fatal(err)
