@@ -15,21 +15,75 @@ var (
 	datasetDir   = "./data"
 	datasets     = []string{
 		"fb_200M_uint64",
+		"wiki_ts_200M_uint64",
+		"osm_cellids_200M_uint64",
+		"books_200M_uint64",
+		"normal_200M_uint64",
+		"lognormal_200M_uint64",
+		"uniform_sparse_200M_uint64",
+		"uniform_dense_200M_uint64",
 	}
 	// we use creation funcs instead of storing the indices so that we can create them one at a time
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
+		// binary search
 		indexes.NewBinarySearch,
+		// rbs
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 8)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 12)
+		},
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewRadixBinarySearch(idxs, 16)
 		},
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 20)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 24)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 28)
+		},
+		// btrees
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewBtreeIndex(idxs, 4)
 		},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixSpline(idxs, 20, 200)
-		//},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewBtreeIndex(idxs, 16)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewBtreeIndex(idxs, 64)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewBtreeIndex(idxs, 256)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewBtreeIndex(idxs, 1024)
+		},
+		// radixspline
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 16, 220)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 20, 160)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 24, 70)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 28, 80)
+		},
+		// CHT
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewCHT(idxs, 64, 1024)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 512, 16)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 1024, 16)
 		},
 	}
 	lookupsToGenerate = 10_000_000
@@ -74,7 +128,7 @@ func RunAllIndexes() {
 			line := fmt.Sprintf("%s, %d, %d, %f", index.Name(), buildTime, index.Size(), float64(totalTime)/float64(len(lookups)))
 			log.Print(line)
 			if _, err := file.WriteString(line); err != nil {
-				log.Fatal(err)
+				log.Print(err)
 			}
 		}
 		if err := file.Close(); err != nil {

@@ -1,8 +1,8 @@
 package indexes
 
 import (
+	"encoding/binary"
 	"github.com/tidwall/btree"
-	"unsafe"
 )
 
 //TODO: write own test bench
@@ -39,7 +39,7 @@ func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 }
 
 func (B *BTreeSecondaryIndex) Size() int64 {
-	return int64(unsafe.Sizeof(*B))
+	return int64(binary.Size(*B))
 }
 
 func (B *BTreeSecondaryIndex) Name() string {

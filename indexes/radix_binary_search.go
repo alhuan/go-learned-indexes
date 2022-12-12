@@ -1,8 +1,8 @@
 package indexes
 
 import (
+	"encoding/binary"
 	"math/bits"
-	"unsafe"
 )
 
 type RadixBinarySearch struct {
@@ -32,7 +32,7 @@ func (r *RadixBinarySearch) Lookup(key uint64) SearchBound {
 }
 
 func (r *RadixBinarySearch) Size() int64 {
-	return int64(unsafe.Sizeof(*r))
+	return int64(binary.Size(*r))
 }
 
 func (r *RadixBinarySearch) Name() string {

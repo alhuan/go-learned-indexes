@@ -1,10 +1,10 @@
 package indexes
 
 import (
+	"encoding/binary"
 	"fmt"
 	"math"
 	"math/bits"
-	"unsafe"
 )
 
 type Info struct {
@@ -73,7 +73,7 @@ func (cht *CompactHistTree) Lookup(key uint64) SearchBound {
 }
 
 func (cht *CompactHistTree) Size() int64 {
-	return int64(unsafe.Sizeof(cht)) + int64(len(cht.table)*8)
+	return int64(binary.Size(*cht))
 }
 
 func (cht *CompactHistTree) Name() string {
