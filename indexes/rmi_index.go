@@ -61,7 +61,7 @@ func NewRMIIndex[Layer1 Model, Layer2 Model](keyValues *[]KeyValue, layer2_size 
 	// Train remaining models.
 	var l2 Layer2
 	l2.Train((*keyValues)[segment_start:], segment_start, 1)
-	rmi.l2[segment_id] = l2
+	rmi.l2 = append(rmi.l2, l2)
 	for j := segment_id + 1; j < rmi.layer2_size; j++ {
 		// Train remaining models on last key.
 		var newl2 Layer2
@@ -96,8 +96,8 @@ func (rmi *RMIIndex) getSegmentId(key uint64) int64 {
 func (rmi *RMIIndex) Lookup(key uint64) SearchBound {
 	segment_id := rmi.getSegmentId(key)
 	prediction := int64(rmi.l2[segment_id].Predict(key))
-	var lo uint64 = uint64(clamp(prediction-rmi.errors[segment_id], 0, rmi.n_keys-1))
-	var hi uint64 = uint64(clamp(prediction+rmi.errors[segment_id], 0, rmi.n_keys-1))
+	var lo uint64 = uint64(clamp(prediction-rmi.errors[segment_id], 0, rmi.n_keys))
+	var hi uint64 = uint64(clamp(prediction+rmi.errors[segment_id] + 1, 0, rmi.n_keys))
 	// FIXME: add bounds
 	return SearchBound{lo, hi}
 }

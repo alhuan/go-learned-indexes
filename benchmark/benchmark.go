@@ -89,6 +89,12 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 128)
 		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearSpline](idxs, 128)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.CubicSpline](idxs, 128)
+		},
 	}
 	lookupsToGenerate = 10_000_000
 )
