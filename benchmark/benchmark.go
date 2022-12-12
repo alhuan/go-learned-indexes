@@ -85,6 +85,10 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewCHT(idxs, 1024, 16)
 		},
+		// rmi
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 128)
+		},
 	}
 	lookupsToGenerate = 10_000_000
 )

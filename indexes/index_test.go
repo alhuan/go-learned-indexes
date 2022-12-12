@@ -32,7 +32,7 @@ func TestIndex(t *testing.T) {
 	}
 
 	// PUT CONSTRUCTION FUNCTION HERE I GUESS?
-	index = NewRadixSpline(&keysList, 20, 200)
+	index = NewRMIIndex[LinearRegression, LinearRegression](&keysList, 128)
 
 	for _, keyValue := range keysList {
 		searchRange := index.Lookup(keyValue.Key)
