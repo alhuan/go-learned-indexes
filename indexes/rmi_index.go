@@ -16,15 +16,17 @@ type RMIIndex struct {
 	l2				[]Model
 }
 
-func NewRMIIndex(keyValues *[]KeyValue, maxError uint64) SecondaryIndex {
+func NewRMIIndex[Layer1 Model, Layer2 Model](keyValues *[]KeyValue, layer2_size int64) SecondaryIndex {
 	rmi := &RMIIndex{}
 
-	rmi.layer2_size = 2
+	rmi.layer2_size = layer2_size
 	rmi.n_keys = int64(len(*keyValues))
-	rmi.maxError = maxError
+	rmi.maxError = 10
 
 	// Train layer1 with compression.
-	rmi.l1 = NewLinearRegression(*keyValues, 0, float64(rmi.layer2_size) / float64(rmi.n_keys))
+	var l1 Layer1
+	l1.Train(*keyValues, 0, float64(rmi.layer2_size) / float64(rmi.n_keys))
+	rmi.l1 = l1
 
 	// Train layer2 models.
 	var segment_id, segment_start int64
@@ -35,19 +37,27 @@ func NewRMIIndex(keyValues *[]KeyValue, maxError uint64) SecondaryIndex {
 		i = int64(pos)
 		pred_segment_id = rmi.getSegmentId(val.Key)
 		if pred_segment_id > segment_id {
-			rmi.l2 = append(rmi.l2, NewLinearRegression((*keyValues)[segment_start: i], segment_start, 1))
+			var l2 Layer2
+			l2.Train((*keyValues)[segment_start: i], segment_start, 1)
+			rmi.l2 = append(rmi.l2, l2)
 			for j := segment_id; j < pred_segment_id; j ++ {
-				rmi.l2 = append(rmi.l2, NewLinearRegression((*keyValues)[i - 1: i], i - 1, 1))
+				var newl2 Layer2
+				newl2.Train((*keyValues)[i - 1: i], i - 1, 1)
+				rmi.l2 = append(rmi.l2, newl2)
 			}
 			segment_id = pred_segment_id
 			segment_start = i
 		}
 	}
 	// Train remaining models.
-	rmi.l2[segment_id] = NewLinearRegression((*keyValues)[segment_start:], segment_start, 1)
+	var l2 Layer2
+	l2.Train((*keyValues)[segment_start:], segment_start, 1)
+	rmi.l2[segment_id] = l2
 	for j := segment_id + 1; j < rmi.layer2_size; j ++ {
 		// Train remaining models on last key.
-		rmi.l2 = append(rmi.l2, NewLinearRegression((*keyValues)[rmi.n_keys - 1:], rmi.n_keys - 1, 1))
+		var newl2 Layer2
+		newl2.Train((*keyValues)[rmi.n_keys - 1:], rmi.n_keys - 1, 1)
+		rmi.l2 = append(rmi.l2, newl2)
 	}
 
 	return rmi

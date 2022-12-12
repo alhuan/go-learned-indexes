@@ -4,6 +4,7 @@ import "unsafe"
 import "math"
 
 type Model interface {
+	Train(keyValues []KeyValue, offset int64, compression_factor float64)
 	Predict(key uint64) float64
 	Size() int64
 }
@@ -15,19 +16,18 @@ type LinearRegression struct {
 	intercept 	float64
 }
 
-func NewLinearRegression(keyValues []KeyValue, offset int64, compression_factor float64) LinearRegression {
+func (lr LinearRegression) Train(keyValues []KeyValue, offset int64, compression_factor float64) {
 	n := len(keyValues)
-	lr := LinearRegression{}
 
 	if (n == 0){
 		lr.slope = 0
 		lr.intercept = 0
-		return lr
+		return
 	}
 	if (n == 1){
 		lr.slope = 0
 		lr.intercept = compression_factor * float64(offset)
-		return lr
+		return
 	}
 
 	var mean_x, mean_y, c, m2 float64
@@ -59,7 +59,7 @@ func NewLinearRegression(keyValues []KeyValue, offset int64, compression_factor 
 		lr.slope = covar / variance * compression_factor
 		lr.intercept = mean_y * compression_factor - lr.slope * mean_x
 	}
-	return lr
+	return
 }
 
 func (lr LinearRegression) Size() int64 {
@@ -77,19 +77,18 @@ type LinearSpline struct {
 	intercept	float64
 }
 
-func NewLinearSpline(keyValues []KeyValue, offset int64, compression_factor float64) LinearSpline {
+func (ls LinearSpline) Train(keyValues []KeyValue, offset int64, compression_factor float64) {
 	n := len(keyValues)
-	ls := LinearSpline{}
 
 	if (n == 0){
 		ls.slope = 0
 		ls.intercept = 0
-		return ls
+		return
 	}
 	if (n == 1){
 		ls.slope = 0
 		ls.intercept = compression_factor * float64(offset)
-		return ls
+		return
 	}
 
 	var numerator float64
@@ -106,7 +105,7 @@ func NewLinearSpline(keyValues []KeyValue, offset int64, compression_factor floa
 
 	ls.intercept = float64(offset) * compression_factor - ls.slope * float64(keyValues[0].Key)
 
-	return ls
+	return
 }
 
 func (ls LinearSpline) Size() int64 {
@@ -126,23 +125,22 @@ type CubicSpline struct {
 	d 	float64 // intercept
 }
 
-func NewCubicSpline(keyValues []KeyValue, offset int64, compression_factor float64) CubicSpline {
+func (cs CubicSpline) Train(keyValues []KeyValue, offset int64, compression_factor float64) {
 	n := len(keyValues)
-	cs := CubicSpline{}
 
 	if (n == 0){
 		cs.a = 0
 		cs.b = 0
 		cs.c = 1
 		cs.d = 0
-		return cs
+		return
 	}
 	if (n == 1){
 		cs.a = 0
 		cs.b = 0
 		cs.c = 0
 		cs.d = compression_factor * float64(offset)
-		return cs
+		return
 	}
 
 	var xmin, ymin, xmax, ymax float64
@@ -216,7 +214,7 @@ func NewCubicSpline(keyValues []KeyValue, offset int64, compression_factor float
 	cs.d *= ymax - ymin
 	cs.d += ymin
 
-	return cs
+	return
 }
 
 func (cs CubicSpline) Size() int64 {

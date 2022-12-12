@@ -29,7 +29,7 @@ var (
 			return indexes.NewRadixSpline(idxs, 20, 200)
 		},
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex(idxs, 200)
+			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearSpline](idxs, 5)
 		},
 	}
 	lookupsToGenerate = 10_000_000
