@@ -136,6 +136,7 @@ func RunAllIndexes() {
 			index := creationFunc(loadedData)
 			buildTime := time.Since(buildStart).Nanoseconds()
 			var totalTime int64 = 0
+			failed := false
 			for _, lookupData := range lookups {
 				// I think a GC pause here would actually cause this to run for hours so I'm not going to include it,
 				// GC pauses  while the index runs are also a legitimate part of performance benchmarking anyway
@@ -143,10 +144,15 @@ func RunAllIndexes() {
 				bounds := index.Lookup(lookupData.Key)
 				found := BinarySearch(loadedData, lookupData.Key, bounds)
 				if !found {
-					log.Fatal(fmt.Sprintf("Bad lookup on index %s on key %d, value %d and searchbound %+v", index.Name(), lookupData.Key, lookupData.Value, bounds))
+					log.Print(fmt.Sprintf("Bad lookup on index %s on key %d, value %d and searchbound %+v", index.Name(), lookupData.Key, lookupData.Value, bounds))
+					failed = true
 				}
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
+			}
+			// if we failed, don't record this time. it might be due to data duplicates or something
+			if failed {
+				continue
 			}
 			line := fmt.Sprintf("%s, %d, %d, %f", index.Name(), buildTime, index.Size(), float64(totalTime)/float64(len(lookups)))
 			log.Print(line)
