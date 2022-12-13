@@ -1,6 +1,7 @@
 package indexes
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -32,7 +33,7 @@ func TestIndex(t *testing.T) {
 	}
 
 	// PUT CONSTRUCTION FUNCTION HERE I GUESS?
-	index = NewRMIIndex[LinearRegression, LinearRegression](&keysList, 128)
+	index = NewBtreeIndex(&keysList, 4)
 
 	for _, keyValue := range keysList {
 		searchRange := index.Lookup(keyValue.Key)
@@ -44,7 +45,7 @@ func TestIndex(t *testing.T) {
 			}
 		}
 		if !found {
-			toPrint := "Not found" + strconv.Itoa(int(keyValue.Key))
+			toPrint := "Not found " + strconv.Itoa(int(keyValue.Key)) + ", range was " + fmt.Sprintf("%#v", searchRange)
 			t.Fatal(toPrint)
 		}
 	}

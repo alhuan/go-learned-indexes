@@ -32,7 +32,7 @@ func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 	}
 	B.baseTree.Ascend(key, pivot)
 	var lower = *upperBound - B.gapSize
-	if lower < 0 {
+	if *upperBound < B.gapSize {
 		lower = 0
 	}
 	return SearchBound{Start: lower, Stop: *upperBound}
