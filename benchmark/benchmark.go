@@ -35,6 +35,9 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewCHT(idxs, 256, 256)
 		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 512, 128)
+		},
 		// binary search
 		indexes.NewBinarySearch,
 		// rbs
