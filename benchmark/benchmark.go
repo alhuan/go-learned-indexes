@@ -15,9 +15,9 @@ var (
 	datasetDir   = "./data"
 	datasets     = []string{
 		"fb_200M_uint64",
-		"wiki_ts_200M_uint64",
 		"osm_cellids_200M_uint64",
 		"books_200M_uint64",
+		"wiki_ts_200M_uint64",
 		"normal_200M_uint64",
 		"lognormal_200M_uint64",
 		"uniform_sparse_200M_uint64",
@@ -111,7 +111,7 @@ var (
 func RunAllIndexes() {
 	// build all indexes and run them
 
-	for _, dataset := range datasets {
+	for datasetIdx, dataset := range datasets {
 		// force a garbage collection to clean up the previous datasets so that
 		// it doesn't continue to take up memory
 		runtime.GC()
@@ -130,6 +130,10 @@ func RunAllIndexes() {
 			runtime.GC()
 			buildStart := time.Now()
 			index := creationFunc(loadedData)
+			if datasetIdx > 2 && index.Name() == "CompactHistTree" {
+				// CHT only works on the first 3 datasets...
+				continue
+			}
 			buildTime := time.Since(buildStart).Nanoseconds()
 			var totalTime int64 = 0
 			for _, lookupData := range lookups {
