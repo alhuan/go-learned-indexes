@@ -1,7 +1,7 @@
 package indexes
 
 import (
-	"encoding/binary"
+	"github.com/DmitriyVTitov/size"
 	"github.com/tidwall/btree"
 )
 
@@ -39,7 +39,7 @@ func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 }
 
 func (B *BTreeSecondaryIndex) Size() int64 {
-	return int64(binary.Size(*B))
+	return int64(size.Of(B))
 }
 
 func (B *BTreeSecondaryIndex) Name() string {
