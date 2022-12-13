@@ -130,7 +130,7 @@ func RunAllIndexes() {
 		for indexIdx, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
-			if datasetIdx > 2 && indexIdx < 3 {
+			if datasetIdx > 2 && indexIdx < 4 {
 				// CHT only works on the first 3 datasets...
 				continue
 			}
