@@ -33,7 +33,7 @@ func TestIndex(t *testing.T) {
 	}
 
 	// PUT CONSTRUCTION FUNCTION HERE I GUESS?
-	index = NewBtreeIndex(&keysList, 4)
+	index = NewBtreeIndex(&keysList, 8)
 
 	for _, keyValue := range keysList {
 		searchRange := index.Lookup(keyValue.Key)
