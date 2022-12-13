@@ -114,6 +114,9 @@ func RunAllIndexes() {
 	for datasetIdx, dataset := range datasets {
 		// force a garbage collection to clean up the previous datasets so that
 		// it doesn't continue to take up memory
+		if datasetIdx <= 2 {
+			continue
+		}
 		runtime.GC()
 		loadedData, err := LoadDataset(path.Join(datasetDir, dataset))
 		if err != nil {
@@ -127,13 +130,13 @@ func RunAllIndexes() {
 		for indexIdx, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
-			runtime.GC()
-			buildStart := time.Now()
-			index := creationFunc(loadedData)
 			if datasetIdx > 2 && indexIdx < 3 {
 				// CHT only works on the first 3 datasets...
 				continue
 			}
+			runtime.GC()
+			buildStart := time.Now()
+			index := creationFunc(loadedData)
 			buildTime := time.Since(buildStart).Nanoseconds()
 			var totalTime int64 = 0
 			for _, lookupData := range lookups {
