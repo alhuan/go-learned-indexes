@@ -114,9 +114,6 @@ func RunAllIndexes() {
 	for datasetIdx, dataset := range datasets {
 		// force a garbage collection to clean up the previous datasets so that
 		// it doesn't continue to take up memory
-		if datasetIdx <= 2 {
-			continue
-		}
 		runtime.GC()
 		loadedData, err := LoadDataset(path.Join(datasetDir, dataset))
 		if err != nil {
