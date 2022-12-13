@@ -38,72 +38,72 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewCHT(idxs, 512, 128)
 		},
-		// binary search
-		indexes.NewBinarySearch,
-		// rbs
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 8)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 12)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 16)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 20)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 24)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 28)
-		},
-		// btrees
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewBtreeIndex(idxs, 4)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewBtreeIndex(idxs, 16)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewBtreeIndex(idxs, 64)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewBtreeIndex(idxs, 256)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewBtreeIndex(idxs, 1024)
-		},
-		// radixspline
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 16, 220)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 20, 160)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 24, 70)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 28, 80)
-		},
-		// rmi
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 128)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 2048)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 32768)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 2097152)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 33554432)
-		},
+		//// binary search
+		//indexes.NewBinarySearch,
+		//// rbs
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 8)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 12)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 16)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 20)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 24)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 28)
+		//},
+		//// btrees
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewBtreeIndex(idxs, 4)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewBtreeIndex(idxs, 16)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewBtreeIndex(idxs, 64)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewBtreeIndex(idxs, 256)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewBtreeIndex(idxs, 1024)
+		//},
+		//// radixspline
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 16, 220)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 20, 160)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 24, 70)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 28, 80)
+		//},
+		//// rmi
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 128)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 2048)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 32768)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 2097152)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 33554432)
+		//},
 	}
 	lookupsToGenerate = 10_000_000
 )
