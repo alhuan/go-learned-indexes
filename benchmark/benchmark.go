@@ -25,6 +25,16 @@ var (
 	}
 	// we use creation funcs instead of storing the indices so that we can create them one at a time
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
+		// CHT
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 32, 1024)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 64, 512)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 256, 256)
+		},
 		// binary search
 		indexes.NewBinarySearch,
 		// rbs
@@ -74,16 +84,6 @@ var (
 		},
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewRadixSpline(idxs, 28, 80)
-		},
-		// CHT
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 64, 1024)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 512, 16)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 1024, 16)
 		},
 		// rmi
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {

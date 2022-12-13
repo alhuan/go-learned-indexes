@@ -1,8 +1,8 @@
 package indexes
 
 import (
-	"encoding/binary"
 	"fmt"
+	"github.com/DmitriyVTitov/size"
 	"math"
 	"math/bits"
 )
@@ -73,7 +73,7 @@ func (cht *CompactHistTree) Lookup(key uint64) SearchBound {
 }
 
 func (cht *CompactHistTree) Size() int64 {
-	return int64(binary.Size(*cht))
+	return int64(size.Of(cht))
 }
 
 func (cht *CompactHistTree) Name() string {
