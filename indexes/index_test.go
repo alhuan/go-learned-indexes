@@ -33,7 +33,7 @@ func TestIndex(t *testing.T) {
 	}
 
 	// PUT CONSTRUCTION FUNCTION HERE I GUESS?
-	index = NewBtreeIndex(&keysList, 8)
+	index = NewRMIIndex(&keysList, 128)
 
 	for _, keyValue := range keysList {
 		searchRange := index.Lookup(keyValue.Key)
@@ -44,6 +44,7 @@ func TestIndex(t *testing.T) {
 				found = true
 			}
 		}
+		fmt.Println(searchRange.Stop - searchRange.Start)
 		if !found {
 			toPrint := "Not found " + strconv.Itoa(int(keyValue.Key)) + ", range was " + fmt.Sprintf("%#v", searchRange)
 			t.Fatal(toPrint)
