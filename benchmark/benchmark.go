@@ -89,21 +89,21 @@ var (
 		//	return indexes.NewRadixSpline(idxs, 28, 80)
 		//},
 		// rmi
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRMIIndex(idxs, 128)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRMIIndex(idxs, 2048)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRMIIndex(idxs, 32768)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRMIIndex(idxs, 2097152)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRMIIndex(idxs, 33554432)
-		//},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex(idxs, 128)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex(idxs, 2048)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex(idxs, 32768)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex(idxs, 2097152)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRMIIndex(idxs, 33554432)
+		},
 	}
 	lookupsToGenerate = 10_000_000
 )
