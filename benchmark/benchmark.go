@@ -25,40 +25,40 @@ var (
 	}
 	// we use creation funcs instead of storing the indices so that we can create them one at a time
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
-		//// CHT
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewCHT(idxs, 32, 1024)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewCHT(idxs, 64, 512)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewCHT(idxs, 256, 256)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewCHT(idxs, 512, 128)
-		//},
-		//// binary search
-		//indexes.NewBinarySearch,
-		//// rbs
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixBinarySearch(idxs, 8)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixBinarySearch(idxs, 12)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixBinarySearch(idxs, 16)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixBinarySearch(idxs, 20)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixBinarySearch(idxs, 24)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixBinarySearch(idxs, 28)
-		//},
+		// CHT
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 32, 1024)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 64, 512)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 256, 256)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewCHT(idxs, 512, 128)
+		},
+		// binary search
+		indexes.NewBinarySearch,
+		// rbs
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 8)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 12)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 16)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 20)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 24)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixBinarySearch(idxs, 28)
+		},
 		// btrees
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewBtreeIndex(idxs, 4)
@@ -75,19 +75,19 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewBtreeIndex(idxs, 1024)
 		},
-		//// radixspline
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixSpline(idxs, 16, 220)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixSpline(idxs, 20, 160)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixSpline(idxs, 24, 70)
-		//},
-		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-		//	return indexes.NewRadixSpline(idxs, 28, 80)
-		//},
+		// radixspline
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 16, 220)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 20, 160)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 24, 70)
+		},
+		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+			return indexes.NewRadixSpline(idxs, 28, 80)
+		},
 		// rmi
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewRMIIndex(idxs, 128)
@@ -111,7 +111,7 @@ var (
 func RunAllIndexes() {
 	// build all indexes and run them
 
-	for _, dataset := range datasets {
+	for datasetIdx, dataset := range datasets {
 		// force a garbage collection to clean up the previous datasets so that
 		// it doesn't continue to take up memory
 		runtime.GC()
@@ -124,13 +124,13 @@ func RunAllIndexes() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, creationFunc := range creationFuncs {
+		for indexIdx, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
-			//if datasetIdx > 2 && indexIdx < 4 {
-			//	// CHT only works on the first 3 datasets...
-			//	continue
-			//}
+			if datasetIdx > 2 && indexIdx < 4 {
+				// CHT only works on the first 3 datasets...
+				continue
+			}
 			runtime.GC()
 			buildStart := time.Now()
 			index := creationFunc(loadedData)
@@ -146,6 +146,7 @@ func RunAllIndexes() {
 				if !found {
 					log.Print(fmt.Sprintf("Bad lookup on index %s on key %d, value %d and searchbound %+v", index.Name(), lookupData.Key, lookupData.Value, bounds))
 					failed = true
+					break
 				}
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
