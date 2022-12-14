@@ -4,7 +4,7 @@ import "unsafe"
 import "math"
 
 type Model interface {
-	Train(keyValues []KeyValue, offset int64, compression_factor float64)
+	Train(keyValues *[]KeyValue, start int, end int, compression_factor float64)
 	Predict(key uint64) float64
 	Size() int64
 }
@@ -16,8 +16,8 @@ type LinearRegression struct {
 	intercept float64
 }
 
-func (lr *LinearRegression) Train(keyValues []KeyValue, offset int64, compression_factor float64) {
-	n := len(keyValues)
+func (lr *LinearRegression) Train(keyValues *[]KeyValue, start int, end int, compression_factor float64) {
+	n := end - start
 
 	if n == 0 {
 		lr.slope = 0
@@ -26,7 +26,7 @@ func (lr *LinearRegression) Train(keyValues []KeyValue, offset int64, compressio
 	}
 	if n == 1 {
 		lr.slope = 0
-		lr.intercept = compression_factor * float64(offset)
+		lr.intercept = compression_factor * float64(start)
 		return
 	}
 
@@ -37,15 +37,17 @@ func (lr *LinearRegression) Train(keyValues []KeyValue, offset int64, compressio
 	c = 0.0
 	m2 = 0.0
 
-	for i, kv := range keyValues {
-		y := float64(offset) + float64(i)
+	for i := 0; i < n; i ++ {
+		pos := i + start
+		x := float64((*keyValues)[pos].Key)
+		y := float64(pos)
 
-		dx := float64(kv.Key) - mean_x
+		dx := x - mean_x
 		mean_x += dx / float64(i+1)
 		mean_y += (y - mean_y) / float64(i+1)
 		c += dx * (y - mean_y)
 
-		dx2 := float64(kv.Key) - mean_x
+		dx2 := x - mean_x
 		m2 += dx * dx2
 	}
 
@@ -77,8 +79,8 @@ type LinearSpline struct {
 	intercept float64
 }
 
-func (ls *LinearSpline) Train(keyValues []KeyValue, offset int64, compression_factor float64) {
-	n := len(keyValues)
+func (ls *LinearSpline) Train(keyValues *[]KeyValue, start int, end int, compression_factor float64) {
+	n := end - start
 
 	if n == 0 {
 		ls.slope = 0
@@ -87,7 +89,7 @@ func (ls *LinearSpline) Train(keyValues []KeyValue, offset int64, compression_fa
 	}
 	if n == 1 {
 		ls.slope = 0
-		ls.intercept = compression_factor * float64(offset)
+		ls.intercept = compression_factor * float64(start)
 		return
 	}
 
@@ -95,7 +97,7 @@ func (ls *LinearSpline) Train(keyValues []KeyValue, offset int64, compression_fa
 	var denominator float64
 
 	numerator = float64(n)
-	denominator = float64(keyValues[n-1].Key - keyValues[0].Key)
+	denominator = float64((*keyValues)[end-1].Key - (*keyValues)[start].Key)
 
 	if denominator == 0 {
 		ls.slope = 0
@@ -103,7 +105,7 @@ func (ls *LinearSpline) Train(keyValues []KeyValue, offset int64, compression_fa
 		ls.slope = numerator / denominator * compression_factor
 	}
 
-	ls.intercept = float64(offset)*compression_factor - ls.slope*float64(keyValues[0].Key)
+	ls.intercept = float64(start)*compression_factor - ls.slope * float64((*keyValues)[start].Key)
 
 	return
 }
@@ -125,8 +127,8 @@ type CubicSpline struct {
 	d float64 // intercept
 }
 
-func (cs *CubicSpline) Train(keyValues []KeyValue, offset int64, compression_factor float64) {
-	n := len(keyValues)
+func (cs *CubicSpline) Train(keyValues *[]KeyValue, start int, end int, compression_factor float64) {
+	n := end - start
 
 	if n == 0 {
 		cs.a = 0
@@ -135,11 +137,12 @@ func (cs *CubicSpline) Train(keyValues []KeyValue, offset int64, compression_fac
 		cs.d = 0
 		return
 	}
-	if n == 1 {
+	
+	if n == 1 || (*keyValues)[start].Key == (*keyValues)[end - 1].Key{
 		cs.a = 0
 		cs.b = 0
 		cs.c = 0
-		cs.d = compression_factor * float64(offset)
+		cs.d = compression_factor * float64(start)
 		return
 	}
 
@@ -147,10 +150,10 @@ func (cs *CubicSpline) Train(keyValues []KeyValue, offset int64, compression_fac
 	var x1, y1, x2, y2 float64
 	var sxn, syn float64
 
-	xmin = float64(keyValues[0].Key)
-	ymin = compression_factor * float64(offset)
-	xmax = float64(keyValues[n-1].Key)
-	ymax = compression_factor * float64(offset+int64(n)-1)
+	xmin = float64((*keyValues)[start].Key)
+	ymin = compression_factor * float64(start)
+	xmax = float64((*keyValues)[end - 1].Key)
+	ymax = compression_factor * float64(end - 1)
 
 	x1 = 0
 	y1 = 0
@@ -160,10 +163,10 @@ func (cs *CubicSpline) Train(keyValues []KeyValue, offset int64, compression_fac
 	sxn = 0
 	syn = 0
 
-	for i, kv := range keyValues {
+	for i := 0; i < n; i ++ {
 		var x, y float64
-		x = float64(kv.Key)
-		y = (float64(offset) + float64(i)) * compression_factor
+		x = float64((*keyValues)[start + i].Key)
+		y = float64(start + i) * compression_factor
 
 		sxn = (x - xmin) / (xmax - xmin)
 		if sxn > 0 {
@@ -179,10 +182,10 @@ func (cs *CubicSpline) Train(keyValues []KeyValue, offset int64, compression_fac
 	sxp = 0
 	syp = 0
 
-	for i, kv := range keyValues {
+	for i := 0; i < n; i ++ {
 		var x, y float64
-		x = float64(kv.Key)
-		y = (float64(offset) + float64(i)) * compression_factor
+		x = float64((*keyValues)[start + i].Key)
+		y = float64(start + i) * compression_factor
 
 		sxp = (x - xmin) / (xmax - xmin)
 		if sxp > 0 {

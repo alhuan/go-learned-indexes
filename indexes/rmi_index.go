@@ -21,62 +21,63 @@ func clamp(val int64, lo int64, hi int64) int64 {
 // better read their papers good
 type RMIIndex struct {
 	n_keys      int64
-	layer2_size int64
+	layer2_size int
 	l1          LinearRegression
 	l2          []LinearRegression
 
 	errors []int64
 }
 
-func NewRMIIndex(keyValues *[]KeyValue, layer2_size int64) SecondaryIndex {
+func NewRMIIndex(keyValues *[]KeyValue, layer2_size int) SecondaryIndex {
+	n := len(*keyValues)
 	rmi := &RMIIndex{}
 
 	rmi.layer2_size = layer2_size
-	rmi.n_keys = int64(len(*keyValues))
+	rmi.n_keys = int64(n)
 
 	// Train layer1 with compression.
 	var l1 LinearRegression
-	l1.Train(*keyValues, 0, float64(rmi.layer2_size)/float64(rmi.n_keys))
+	l1.Train(keyValues, 0, n, float64(rmi.layer2_size)/float64(rmi.n_keys))
 	rmi.l1 = l1
 
 	// Train layer2 models.
-	var segment_start int64 = 0
-	var segment_id int64 = 0
-	for pos, val := range *keyValues {
-		var i int64 = int64(pos)
-		var pred_segment_id int64 = rmi.getSegmentId(val.Key)
+	var segment_start int = 0
+	var segment_id int = 0
+	for pos := 0; pos < n; pos ++ {
+		var pred_segment_id int = int(rmi.getSegmentId((*keyValues)[pos].Key))
 		if pred_segment_id > segment_id {
 			var l2 LinearRegression
-			l2.Train((*keyValues)[segment_start:i], segment_start, 1)
+			l2.Train(keyValues, segment_start, pos, 1)
 			rmi.l2 = append(rmi.l2, l2)
 			for j := segment_id + 1; j < pred_segment_id; j++ {
 				var newl2 LinearRegression
-				newl2.Train((*keyValues)[i-1:i], i-1, 1)
+				l2.Train(keyValues, pos - 1, pos, 1)
 				rmi.l2 = append(rmi.l2, newl2)
 			}
 			segment_id = pred_segment_id
-			segment_start = i
+			segment_start = pos
 		}
 	}
 	// Train remaining models.
 	var l2 LinearRegression
-	l2.Train((*keyValues)[segment_start:], segment_start, 1)
+	l2.Train(keyValues, segment_start, n, 1)
 	rmi.l2 = append(rmi.l2, l2)
 	for j := segment_id + 1; j < rmi.layer2_size; j++ {
 		// Train remaining models on last key.
 		var newl2 LinearRegression
-		newl2.Train((*keyValues)[rmi.n_keys-1:], rmi.n_keys-1, 1)
+		l2.Train(keyValues, n - 1, n, 1)
 		rmi.l2 = append(rmi.l2, newl2)
 	}
 
 	rmi.errors = make([]int64, layer2_size)
 
-	// Compute local abosolute error bounds.
-	for pos, val := range *keyValues {
+	// Compute local absolute error bounds.
+	for pos := 0; pos < n; pos ++ {
 		var i, segment_id int64
+		key := (*keyValues)[pos].Key
 		i = int64(pos)
-		segment_id = rmi.getSegmentId(val.Key)
-		pred := clamp(int64(rmi.l2[segment_id].Predict(val.Key)), 0, rmi.n_keys-1)
+		segment_id = rmi.getSegmentId(key)
+		pred := clamp(int64(rmi.l2[segment_id].Predict(key)), 0, rmi.n_keys-1)
 		if pred > i {
 			rmi.errors[segment_id] = int64(math.Max(float64(rmi.errors[segment_id]), float64(pred-i)))
 		} else {
@@ -95,15 +96,15 @@ func (rmi *RMIIndex) getSegmentId(key uint64) int64 {
 
 func (rmi *RMIIndex) Lookup(key uint64) SearchBound {
 	segment_id := rmi.getSegmentId(key)
-	prediction := int64(rmi.l2[segment_id].Predict(key))
-	var lo uint64 = uint64(clamp(prediction-rmi.errors[segment_id], 0, rmi.n_keys))
-	var hi uint64 = uint64(clamp(prediction+rmi.errors[segment_id]+1, 0, rmi.n_keys))
+	prediction := clamp(int64(rmi.l2[segment_id].Predict(key)), 0, rmi.n_keys-1)
+	var lo uint64 = uint64(clamp(prediction-rmi.errors[segment_id], 0, rmi.n_keys - 1))
+	var hi uint64 = uint64(clamp(prediction+rmi.errors[segment_id] + 1, 0, rmi.n_keys))
 	// FIXME: add bounds
 	return SearchBound{lo, hi}
 }
 
 func (rmi *RMIIndex) Size() int64 {
-	return int64(unsafe.Sizeof(*rmi)) + rmi.l1.Size() + rmi.l2[0].Size()*rmi.layer2_size
+	return int64(unsafe.Sizeof(*rmi)) + rmi.l1.Size() + rmi.l2[0].Size() * int64(rmi.layer2_size)
 }
 
 func (rmi *RMIIndex) Name() string {
