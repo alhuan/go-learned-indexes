@@ -25,40 +25,40 @@ var (
 	}
 	// we use creation funcs instead of storing the indices so that we can create them one at a time
 	creationFuncs = []func(*[]indexes.KeyValue) indexes.SecondaryIndex{
-		// CHT
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 32, 1024)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 64, 512)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 256, 256)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewCHT(idxs, 512, 128)
-		},
-		// binary search
-		indexes.NewBinarySearch,
-		// rbs
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 8)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 12)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 16)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 20)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 24)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixBinarySearch(idxs, 28)
-		},
+		//// CHT
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewCHT(idxs, 32, 1024)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewCHT(idxs, 64, 512)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewCHT(idxs, 256, 256)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewCHT(idxs, 512, 128)
+		//},
+		//// binary search
+		//indexes.NewBinarySearch,
+		//// rbs
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 8)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 12)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 16)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 20)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 24)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixBinarySearch(idxs, 28)
+		//},
 		// btrees
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewBtreeIndex(idxs, 4)
@@ -75,19 +75,19 @@ var (
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewBtreeIndex(idxs, 1024)
 		},
-		// radixspline
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 16, 220)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 20, 160)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 24, 70)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRadixSpline(idxs, 28, 80)
-		},
+		//// radixspline
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 16, 220)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 20, 160)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 24, 70)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRadixSpline(idxs, 28, 80)
+		//},
 		// rmi
 		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
 			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 128)
