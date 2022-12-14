@@ -2,13 +2,13 @@ package indexes
 
 import (
 	"github.com/DmitriyVTitov/size"
-	"github.com/google/btree"
+	"github.com/tidwall/btree"
 )
 
 //TODO: write own test bench
 
 type BTreeSecondaryIndex struct {
-	baseTree *btree.BTreeG[KeyValue]
+	baseTree *btree.Map[uint64, uint64]
 	gapSize  uint64
 	numKeys  uint64
 }
@@ -19,18 +19,18 @@ func (B *BTreeSecondaryIndex) Lookup(key uint64) SearchBound {
 
 	// initialized to length of data, can also maybe be len(baseTree) * gapSize?
 	var upperBound = &B.numKeys
-	iter := func(k KeyValue) bool {
-		if k.Key > key {
-			*upperBound = k.Value
+	pivot := func(k uint64, v uint64) bool {
+		if k > key {
+			*upperBound = v
 			return false
 			// hit the key, just give it a valid search bound and let it go
-		} else if k.Key == key {
-			*upperBound = k.Value + 1
+		} else if k == key {
+			*upperBound = v + 1
 			return false
 		}
 		return true
 	}
-	B.baseTree.AscendGreaterOrEqual(KeyValue{key, 0}, iter)
+	B.baseTree.Ascend(key, pivot)
 	var lower = *upperBound - B.gapSize
 	if *upperBound < B.gapSize {
 		lower = 0
@@ -50,11 +50,11 @@ func NewBtreeIndex(keyValues *[]KeyValue, gap uint64) SecondaryIndex {
 	var tree = btree.NewMap[uint64, uint64](4)
 	for i := 0; i < len(*keyValues); i += int(gap) { //load in every gap size element
 		var curKeyVal = (*keyValues)[i]
-		tree.ReplaceOrInsert(curKeyVal)
+		tree.Load(curKeyVal.Key, curKeyVal.Value)
 	}
 	// we need to add the last value so that the b-tree has a complete picture
 	lastValue := (*keyValues)[len(*keyValues)-1]
-	tree.ReplaceOrInsert(lastValue)
+	tree.Load(lastValue.Key, lastValue.Value)
 	return &BTreeSecondaryIndex{
 		baseTree: tree,
 		gapSize:  gap,

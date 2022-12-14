@@ -22,20 +22,20 @@ func clamp(val int64, lo int64, hi int64) int64 {
 type RMIIndex struct {
 	n_keys      int64
 	layer2_size int64
-	l1          Model
-	l2          []Model
+	l1          LinearRegression
+	l2          []LinearRegression
 
 	errors []int64
 }
 
-func NewRMIIndex[Layer1 Model, Layer2 Model](keyValues *[]KeyValue, layer2_size int64) SecondaryIndex {
+func NewRMIIndex(keyValues *[]KeyValue, layer2_size int64) SecondaryIndex {
 	rmi := &RMIIndex{}
 
 	rmi.layer2_size = layer2_size
 	rmi.n_keys = int64(len(*keyValues))
 
 	// Train layer1 with compression.
-	var l1 Layer1
+	var l1 LinearRegression
 	l1.Train(*keyValues, 0, float64(rmi.layer2_size)/float64(rmi.n_keys))
 	rmi.l1 = l1
 
@@ -46,11 +46,11 @@ func NewRMIIndex[Layer1 Model, Layer2 Model](keyValues *[]KeyValue, layer2_size 
 		var i int64 = int64(pos)
 		var pred_segment_id int64 = rmi.getSegmentId(val.Key)
 		if pred_segment_id > segment_id {
-			var l2 Layer2
+			var l2 LinearRegression
 			l2.Train((*keyValues)[segment_start:i], segment_start, 1)
 			rmi.l2 = append(rmi.l2, l2)
 			for j := segment_id + 1; j < pred_segment_id; j++ {
-				var newl2 Layer2
+				var newl2 LinearRegression
 				newl2.Train((*keyValues)[i-1:i], i-1, 1)
 				rmi.l2 = append(rmi.l2, newl2)
 			}
@@ -59,12 +59,12 @@ func NewRMIIndex[Layer1 Model, Layer2 Model](keyValues *[]KeyValue, layer2_size 
 		}
 	}
 	// Train remaining models.
-	var l2 Layer2
+	var l2 LinearRegression
 	l2.Train((*keyValues)[segment_start:], segment_start, 1)
 	rmi.l2 = append(rmi.l2, l2)
 	for j := segment_id + 1; j < rmi.layer2_size; j++ {
 		// Train remaining models on last key.
-		var newl2 Layer2
+		var newl2 LinearRegression
 		newl2.Train((*keyValues)[rmi.n_keys-1:], rmi.n_keys-1, 1)
 		rmi.l2 = append(rmi.l2, newl2)
 	}
@@ -97,7 +97,7 @@ func (rmi *RMIIndex) Lookup(key uint64) SearchBound {
 	segment_id := rmi.getSegmentId(key)
 	prediction := int64(rmi.l2[segment_id].Predict(key))
 	var lo uint64 = uint64(clamp(prediction-rmi.errors[segment_id], 0, rmi.n_keys))
-	var hi uint64 = uint64(clamp(prediction+rmi.errors[segment_id] + 1, 0, rmi.n_keys))
+	var hi uint64 = uint64(clamp(prediction+rmi.errors[segment_id]+1, 0, rmi.n_keys))
 	// FIXME: add bounds
 	return SearchBound{lo, hi}
 }

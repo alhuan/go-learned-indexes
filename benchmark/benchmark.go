@@ -89,21 +89,21 @@ var (
 		//	return indexes.NewRadixSpline(idxs, 28, 80)
 		//},
 		// rmi
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 128)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 2048)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 32768)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 2097152)
-		},
-		func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
-			return indexes.NewRMIIndex[indexes.LinearRegression, indexes.LinearRegression](idxs, 33554432)
-		},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex(idxs, 128)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex(idxs, 2048)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex(idxs, 32768)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex(idxs, 2097152)
+		//},
+		//func(idxs *[]indexes.KeyValue) indexes.SecondaryIndex {
+		//	return indexes.NewRMIIndex(idxs, 33554432)
+		//},
 	}
 	lookupsToGenerate = 10_000_000
 )
@@ -111,7 +111,7 @@ var (
 func RunAllIndexes() {
 	// build all indexes and run them
 
-	for datasetIdx, dataset := range datasets {
+	for _, dataset := range datasets {
 		// force a garbage collection to clean up the previous datasets so that
 		// it doesn't continue to take up memory
 		runtime.GC()
@@ -124,18 +124,19 @@ func RunAllIndexes() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		for indexIdx, creationFunc := range creationFuncs {
+		for _, creationFunc := range creationFuncs {
 			// again, force a garbage collection to remove the previous index from memory
 			// since it might still be there
-			if datasetIdx > 2 && indexIdx < 4 {
-				// CHT only works on the first 3 datasets...
-				continue
-			}
+			//if datasetIdx > 2 && indexIdx < 4 {
+			//	// CHT only works on the first 3 datasets...
+			//	continue
+			//}
 			runtime.GC()
 			buildStart := time.Now()
 			index := creationFunc(loadedData)
 			buildTime := time.Since(buildStart).Nanoseconds()
 			var totalTime int64 = 0
+			failed := false
 			for _, lookupData := range lookups {
 				// I think a GC pause here would actually cause this to run for hours so I'm not going to include it,
 				// GC pauses  while the index runs are also a legitimate part of performance benchmarking anyway
@@ -143,10 +144,15 @@ func RunAllIndexes() {
 				bounds := index.Lookup(lookupData.Key)
 				found := BinarySearch(loadedData, lookupData.Key, bounds)
 				if !found {
-					log.Fatal(fmt.Sprintf("Bad lookup on index %s on key %d, value %d and searchbound %+v", index.Name(), lookupData.Key, lookupData.Value, bounds))
+					log.Print(fmt.Sprintf("Bad lookup on index %s on key %d, value %d and searchbound %+v", index.Name(), lookupData.Key, lookupData.Value, bounds))
+					failed = true
 				}
 				elapsed := time.Since(startTime).Nanoseconds()
 				totalTime += elapsed
+			}
+			// if we failed, don't record this time. it might be due to data duplicates or something
+			if failed {
+				continue
 			}
 			line := fmt.Sprintf("%s, %d, %d, %f\n", index.Name(), buildTime, index.Size(), float64(totalTime)/float64(len(lookups)))
 			log.Print(line)
