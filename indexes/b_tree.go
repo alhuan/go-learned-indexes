@@ -47,7 +47,7 @@ func (B *BTreeSecondaryIndex) Name() string {
 }
 
 func NewBtreeIndex(keyValues *[]KeyValue, gap uint64) SecondaryIndex {
-	var tree = btree.NewMap[uint64, uint64](0)
+	var tree = btree.NewMap[uint64, uint64](64)
 
 	for i := 0; i < len(*keyValues); i += int(gap) { //load in every gap size element
 		var curKeyVal = (*keyValues)[i]
